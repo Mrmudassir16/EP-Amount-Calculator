@@ -3,15 +3,43 @@
 <head>
     <title>EP Amount Calculator</title>
     <style>
-        body { font-family: Arial; background: #f4f6f8; }
-        .box {
-            width: 600px;
-            margin: 30px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
         }
-        input, button { width: 100%; padding: 8px; margin: 5px 0; }
+        .box {
+            width: 420px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 6px;
+        }
+        input, button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+        button {
+            background: #2c7be5;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        h2 {
+            text-align: center;
+        }
+        .result {
+            background: #e6f4ea;
+            padding: 10px;
+            font-weight: bold;
+        }
+        label {
+            font-weight: bold;
+        }
+        small {
+            color: #666;
+        }
     </style>
 </head>
 
@@ -19,28 +47,51 @@
 <div class="box">
     <h2>Execution Petition Amount Calculator</h2>
 
-    <form method="POST" action="/calculate-ep">
-        <input name="suit_amount" placeholder="Suit Amount" required>
-        <input name="principal_amount" placeholder="Principal Amount" required>
+    <form method="post">
+        <label>Suit Amount</label>
+        <input type="number" name="suit_amount" required>
 
+        <label>Principal Amount (for interest)</label>
+        <input type="number" name="principal_amount" required>
+
+        <label>Suit Filing Date</label>
         <input type="date" name="suit_date" required>
+
+        <label>Decree Date</label>
         <input type="date" name="decree_date" required>
+
+        <label>EP Filing Date</label>
         <input type="date" name="ep_date" required>
+        <small>Enter dates as per court records</small>
 
-        <input name="rate1" placeholder="Interest % (Suit → Decree)" required>
-        <input name="rate2" placeholder="Interest % (Decree → EP)" required>
+        <label>Interest Rate (%) – Suit Filing to Decree</label>
+        <input type="number" step="0.01" name="rate_suit_decree" required>
 
-        <input name="costs_awarded" placeholder="Costs Awarded">
-        <input name="costs_obtaining" placeholder="Cost Obtaining Decree">
-        <input name="court_fee_ep" placeholder="Court Fee EP">
-        <input name="court_fee_decree" placeholder="Court Fee Decree">
-        <input name="advocate_fee_ep" placeholder="Advocate Fee EP">
+        <label>Interest Rate (%) – Decree to EP</label>
+        <input type="number" step="0.01" name="rate_decree_ep" required>
 
-        <button type="submit">Calculate</button>
+        <label>Costs Awarded</label>
+        <input type="number" name="costs_awarded" required>
+
+        <label>Cost for Obtaining Decree</label>
+        <input type="number" name="cost_obtaining" required>
+
+        <label>Court Fee on EP</label>
+        <input type="number" name="court_fee_ep" required>
+
+        <label>Court Fee on Decree</label>
+        <input type="number" name="court_fee_decree" required>
+
+        <label>Advocate Fee in EP</label>
+        <input type="number" name="advocate_fee_ep" required>
+
+        <button type="submit">Calculate EP Amount</button>
     </form>
 
     {% if result %}
-        <h3>EP Amount: ₹ {{ result.ep_amount }}</h3>
+    <div class="result">
+        Total EP Amount Payable: ₹ {{ result }}
+    </div>
     {% endif %}
 </div>
 </body>
