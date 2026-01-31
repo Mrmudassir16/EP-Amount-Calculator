@@ -1,5 +1,6 @@
 import sqlite3
 
+
 DB_NAME = "ep_cases.db"
 
 
@@ -7,7 +8,7 @@ def get_connection():
     return sqlite3.connect(DB_NAME)
 
 
-def create_table():
+def init_db():
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -16,14 +17,7 @@ def create_table():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             suit_amount REAL,
             principal_amount REAL,
-            suit_date TEXT,
-            decree_date TEXT,
-            ep_date TEXT,
-            phase1_interest REAL,
-            phase2_interest REAL,
-            total_costs REAL,
-            ep_amount REAL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            final_amount REAL
         )
     """)
 
@@ -31,29 +25,14 @@ def create_table():
     conn.close()
 
 
-def insert_case(data):
+def save_case(suit_amount, principal_amount, final_amount):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO ep_cases (
-            suit_amount, principal_amount, suit_date,
-            decree_date, ep_date,
-            phase1_interest, phase2_interest,
-            total_costs, ep_amount
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        data["suit_amount"],
-        data["principal_amount"],
-        data["suit_date"],
-        data["decree_date"],
-        data["ep_date"],
-        data["phase1_interest"],
-        data["phase2_interest"],
-        data["total_costs"],
-        data["ep_amount"]
-    ))
+        INSERT INTO ep_cases (suit_amount, principal_amount, final_amount)
+        VALUES (?, ?, ?)
+    """, (suit_amount, principal_amount, final_amount))
 
     conn.commit()
     conn.close()

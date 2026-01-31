@@ -1,45 +1,42 @@
-from datetime import datetime
-
-
-class EPAmountCalculator:
-    def __init__(self, suit_amount, principal_amount):
-        self.suit_amount = suit_amount
-        self.principal_amount = principal_amount
-
-    @staticmethod
-    def days_between(d1, d2):
-        return (d2 - d1).days
-
-    def interest(self, start_date, end_date, rate):
-        days = self.days_between(start_date, end_date)
-        return (self.principal_amount * rate * days) / (100 * 365)
-
-    def total_costs(self, costs):
-        return sum(costs.values())
-
-    def calculate_ep_amount(
+class EPCalculator:
+    def __init__(
         self,
+        suit_amount,
+        principal_amount,
         suit_date,
         decree_date,
         ep_date,
-        rate1,
-        rate2,
+        rate_suit_decree,
+        rate_decree_ep,
         costs
     ):
-        interest_1 = self.interest(suit_date, decree_date, rate1)
-        interest_2 = self.interest(decree_date, ep_date, rate2)
-        total_cost = self.total_costs(costs)
+        self.suit_amount = suit_amount
+        self.principal_amount = principal_amount
+        self.suit_date = suit_date
+        self.decree_date = decree_date
+        self.ep_date = ep_date
+        self.rate_suit_decree = rate_suit_decree
+        self.rate_decree_ep = rate_decree_ep
+        self.costs = costs
 
-        final_amount = (
+    def days_between(self, d1, d2):
+        return (d2 - d1).days
+
+    def interest_suit_to_decree(self):
+        days = self.days_between(self.suit_date, self.decree_date)
+        return (self.principal_amount * self.rate_suit_decree * days) / (100 * 365)
+
+    def interest_decree_to_ep(self):
+        days = self.days_between(self.decree_date, self.ep_date)
+        return (self.principal_amount * self.rate_decree_ep * days) / (100 * 365)
+
+    def total_costs(self):
+        return sum(self.costs)
+
+    def final_amount(self):
+        return (
             self.suit_amount
-            + interest_1
-            + interest_2
-            + total_cost
+            + self.interest_suit_to_decree()
+            + self.interest_decree_to_ep()
+            + self.total_costs()
         )
-
-        return {
-            "phase1_interest": round(interest_1, 2),
-            "phase2_interest": round(interest_2, 2),
-            "total_costs": round(total_cost, 2),
-            "ep_amount": round(final_amount, 2)
-        }

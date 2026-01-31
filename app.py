@@ -1,49 +1,59 @@
 from flask import Flask, render_template, request
 from datetime import datetime
-from calculator.ep_calculator import EPAmountCalculator
-from database import create_table, insert_case
+
+from calculator.ep_calculator import EPCalculator
+from database import init_db, save_case
 
 app = Flask(__name__)
-create_table()
+
+# Initialize database
+init_db()
 
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+@app.route("/", methods=["GET", "POST"])
+def index():
+    result = None
 
+    if request.method == "POST":
+        # Amounts
+        suit_amount = float(request.form["suit_amount"])
+        principal_amount = float(request.form["principal_amount"])
 
-@app.route("/calculate-ep", methods=["POST"])
-def calculate_ep():
-    form = request.form
+        # Dates
+        suit_date = datetime.strptime(request.form["suit_date"], "%Y-%m-%d")
+        decree_date = datetime.strptime(request.form["decree_date"], "%Y-%m-%d")
+        ep_date = datetime.strptime(request.form["ep_date"], "%Y-%m-%d")
 
-    calculator = EPAmountCalculator(
-        suit_amount=float(form["suit_amount"]),
-        principal_amount=float(form["principal_amount"])
-    )
+        # Interest rates
+        rate_suit_decree = float(request.form["rate_suit_decree"])
+        rate_decree_ep = float(request.form["rate_decree_ep"])
 
-    result = calculator.calculate_ep_amount(
-        suit_date=datetime.strptime(form["suit_date"], "%Y-%m-%d"),
-        decree_date=datetime.strptime(form["decree_date"], "%Y-%m-%d"),
-        ep_date=datetime.strptime(form["ep_date"], "%Y-%m-%d"),
-        rate1=float(form["rate1"]),
-        rate2=float(form["rate2"]),
-        costs={
-            "costs_awarded": float(form["costs_awarded"]),
-            "costs_obtaining": float(form["costs_obtaining"]),
-            "court_fee_ep": float(form["court_fee_ep"]),
-            "court_fee_decree": float(form["court_fee_decree"]),
-            "advocate_fee_ep": float(form["advocate_fee_ep"])
-        }
-    )
+        # Costs
+        costs = [
+            float(request.form["costs_awarded"]),
+            float(request.form["cost_obtaining"]),
+            float(request.form["court_fee_ep"]),
+            float(request.form["court_fee_decree"]),
+            float(request.form["advocate_fee_ep"]),
+        ]
 
-    insert_case({
-        "suit_amount": form["suit_amount"],
-        "principal_amount": form["principal_amount"],
-        "suit_date": form["suit_date"],
-        "decree_date": form["decree_date"],
-        "ep_date": form["ep_date"],
-        **result
-    })
+        # Calculator object
+        calculator = EPCalculator(
+            suit_amount=suit_amount,
+            principal_amount=principal_amount,
+            suit_date=suit_date,
+            decree_date=decree_date,
+            ep_date=ep_date,
+            rate_suit_decree=rate_suit_decree,
+            rate_decree_ep=rate_decree_ep,
+            costs=costs
+        )
+
+        # Final amount
+        result = round(calculator.final_amount(), 2)
+
+        # Save to database
+        save_case(suit_amount, principal_amount, result)
 
     return render_template("index.html", result=result)
 
