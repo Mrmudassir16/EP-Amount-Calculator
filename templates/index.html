@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EP Amount Calculator</title>
+    <style>
+        body { font-family: Arial; background: #f4f6f8; }
+        .box {
+            width: 600px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        input, button { width: 100%; padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+
+<body>
+<div class="box">
+    <h2>Execution Petition Amount Calculator</h2>
+
+    <form method="POST" action="/calculate-ep">
+        <input name="suit_amount" placeholder="Suit Amount" required>
+        <input name="principal_amount" placeholder="Principal Amount" required>
+
+        <input type="date" name="suit_date" required>
+        <input type="date" name="decree_date" required>
+        <input type="date" name="ep_date" required>
+
+        <input name="rate1" placeholder="Interest % (Suit → Decree)" required>
+        <input name="rate2" placeholder="Interest % (Decree → EP)" required>
+
+        <input name="costs_awarded" placeholder="Costs Awarded">
+        <input name="costs_obtaining" placeholder="Cost Obtaining Decree">
+        <input name="court_fee_ep" placeholder="Court Fee EP">
+        <input name="court_fee_decree" placeholder="Court Fee Decree">
+        <input name="advocate_fee_ep" placeholder="Advocate Fee EP">
+
+        <button type="submit">Calculate</button>
+    </form>
+
+    {% if result %}
+        <h3>EP Amount: ₹ {{ result.ep_amount }}</h3>
+    {% endif %}
+</div>
+</body>
+</html>
