@@ -1,3 +1,6 @@
+venv/
 __pycache__/
+*.pyc
 ep_cases.db
 .env
+.flaskenv
