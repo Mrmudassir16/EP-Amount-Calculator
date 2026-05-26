@@ -19,6 +19,35 @@ class EPCalculator:
         self.rate_decree_ep = rate_decree_ep
         self.costs = costs
 
+    @staticmethod
+    def calculate_advocate_fee(claim_amount, contested="Yes"):
+        try:
+            claim_amount = float(claim_amount)
+        except (ValueError, TypeError):
+            return 0.0
+
+        if claim_amount <= 0:
+            return 0.0
+
+        if claim_amount <= 10000:
+            fee = claim_amount * 0.10
+        elif claim_amount <= 20000:
+            fee = (10000 * 0.10) + ((claim_amount - 10000) * 0.07)
+        elif claim_amount <= 50000:
+            fee = (10000 * 0.10) + (10000 * 0.07) + ((claim_amount - 20000) * 0.05)
+        else:
+            fee = (
+                (10000 * 0.10)
+                + (10000 * 0.07)
+                + (30000 * 0.05)
+                + ((claim_amount - 50000) * 0.03)
+            )
+
+        if contested == "No":
+            fee = fee * 0.5
+
+        return round(fee, 2)
+
     def days_between(self, d1, d2):
         return (d2 - d1).days
 
@@ -40,3 +69,4 @@ class EPCalculator:
             + self.interest_decree_to_ep()
             + self.total_costs()
         )
+

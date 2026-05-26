@@ -1,98 +1,1126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>EP Amount Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP Amount Calculator - Premium Legal Dashboard</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(20, 27, 45, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-accent: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --success-color: #10b981;
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --danger-color: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial;
-            background: #f4f6f8;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
         }
-        .box {
-            width: 420px;
-            margin: 40px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 6px;
-        }
-        input, button {
+
+        /* Shuffling Background Images Container */
+        .bg-shuffle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 8px;
-            margin-top: 6px;
-            margin-bottom: 12px;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
         }
-        button {
-            background: #2c7be5;
+
+        .bg-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.8s ease-in-out;
+            transform: scale(1.01);
+        }
+
+        .bg-slide.active {
+            opacity: 0.15; /* Subdued background contrast to ensure 100% legibility */
+        }
+
+        /* Glassy dark gradient overlay to blend background */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(11, 15, 25, 0.75) 0%, #070a13 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header Style */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        /* Error/Validation Alert */
+        .alert-error {
+            background-color: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .alert-error svg {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            fill: var(--danger-color);
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        @media (max-width: 968px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards base */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Forms Styling */
+        .form-section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section-title svg {
+            width: 18px;
+            height: 18px;
+            fill: #a5b4fc;
+        }
+
+        .form-group-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 576px) {
+            .form-group-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-wrapper.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 576px) {
+            .input-wrapper.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            width: 100%;
+            background: rgba(10, 15, 30, 0.85);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background: rgba(10, 15, 30, 0.95);
+        }
+
+        select option {
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        small {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: -4px;
+        }
+
+        button.btn-primary {
+            width: 100%;
+            background: var(--primary-gradient);
             color: white;
             border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
         }
-        h2 {
+
+        button.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.45);
+        }
+
+        button.btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Results Panel Styling */
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .result-header {
             text-align: center;
+            margin-bottom: 30px;
         }
-        .result {
-            background: #e6f4ea;
-            padding: 10px;
-            font-weight: bold;
+
+        .result-header h3 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
         }
-        label {
-            font-weight: bold;
+
+        .final-amount-badge {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 20px;
+            padding: 25px;
+            display: inline-block;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.08);
+            animation: pulseSuccess 3s infinite;
         }
-        small {
-            color: #666;
+
+        .final-amount-badge .val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.01em;
+        }
+
+        .breakdown-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .breakdown-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breakdown-label svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-muted);
+        }
+
+        .breakdown-val {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        /* Advocate Shuffling Carousel empty state card */
+        .empty-results-state {
+            text-align: center;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .showcase-carousel {
+            width: 100%;
+            height: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+            transform: scale(1.03);
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+            text-align: left;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .carousel-caption {
+            z-index: 10;
+            animation: slideUp 0.8s ease;
+        }
+
+        .carousel-caption h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        }
+
+        .carousel-caption p {
+            font-size: 0.85rem;
+            color: #e5e7eb;
+            line-height: 1.4;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 16px;
+            right: 20px;
+            display: flex;
+            gap: 6px;
+            z-index: 20;
+        }
+
+        .carousel-dots .dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .carousel-dots .dot.active {
+            background: var(--primary-accent);
+            width: 18px;
+            border-radius: 4px;
+        }
+
+        .awaiting-badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .empty-results-state p.desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            max-width: 320px;
+        }
+
+        /* Calculations History Table */
+        .history-section {
+            margin-top: 40px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .history-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-header h2 span {
+            background: var(--primary-gradient);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-bar {
+            position: relative;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .search-bar input {
+            padding-left: 40px;
+            border-radius: 20px;
+            background: rgba(22, 30, 49, 0.5);
+        }
+
+        .search-bar svg {
+            position: absolute;
+            left: 14px;
+            top: 13px;
+            width: 16px;
+            height: 16px;
+            fill: var(--text-muted);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+            background: rgba(13, 20, 35, 0.4);
+        }
+
+        th {
+            background: rgba(22, 30, 49, 0.9);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: #a5b4fc;
+            padding: 16px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.history-row {
+            transition: background-color 0.2s ease;
+        }
+
+        tr.history-row:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .td-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .td-final {
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .td-date-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .td-rates {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Delete Button in Table */
+        .btn-delete-row {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-row:hover {
+            background: var(--danger-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-delete-row svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* Empty state for history */
+        .empty-history-state {
+            text-align: center;
+            padding: 50px;
+            background: rgba(22, 30, 49, 0.3);
+            border: 1px dashed var(--border-color);
+            border-radius: 16px;
+            color: var(--text-muted);
+        }
+
+        .empty-history-state svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--text-muted);
+            margin-bottom: 15px;
+            opacity: 0.4;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseSuccess {
+            0% { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.08); }
+            50% { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.18); }
+            100% { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.08); }
         }
     </style>
 </head>
-
 <body>
-<div class="box">
-    <h2>Execution Petition Amount Calculator</h2>
 
-    <form method="post">
-        <label>Suit Amount</label>
-        <input type="number" name="suit_amount" required>
+<!-- Dynamic Legal-Themed Background Slideshow -->
+<div class="bg-shuffle-container">
+    <div class="bg-slide active" style="background-image: url('/static/images/scales_of_justice.png');"></div>
+    <div class="bg-slide" style="background-image: url('/static/images/courtroom_gavel.png');"></div>
+    <div class="bg-slide" style="background-image: url('/static/images/advocate_consulting.png');"></div>
+</div>
+<div class="bg-overlay"></div>
 
-        <label>Principal Amount (for interest)</label>
-        <input type="number" name="principal_amount" required>
+<div class="container">
+    <header>
+        <h1>Execution Petition (EP) Calculator</h1>
+        <p>Premium legal tool for phase-wise interest calculation and cost aggregation</p>
+    </header>
 
-        <label>Suit Filing Date</label>
-        <input type="date" name="suit_date" required>
-
-        <label>Decree Date</label>
-        <input type="date" name="decree_date" required>
-
-        <label>EP Filing Date</label>
-        <input type="date" name="ep_date" required>
-        <small>Enter dates as per court records</small>
-
-        <label>Interest Rate (%) – Suit Filing to Decree</label>
-        <input type="number" step="0.01" name="rate_suit_decree" required>
-
-        <label>Interest Rate (%) – Decree to EP</label>
-        <input type="number" step="0.01" name="rate_decree_ep" required>
-
-        <label>Costs Awarded</label>
-        <input type="number" name="costs_awarded" required>
-
-        <label>Cost for Obtaining Decree</label>
-        <input type="number" name="cost_obtaining" required>
-
-        <label>Court Fee on EP</label>
-        <input type="number" name="court_fee_ep" required>
-
-        <label>Court Fee on Decree</label>
-        <input type="number" name="court_fee_decree" required>
-
-        <label>Advocate Fee in EP</label>
-        <input type="number" name="advocate_fee_ep" required>
-
-        <button type="submit">Calculate EP Amount</button>
-    </form>
-
-    {% if result %}
-    <div class="result">
-        Total EP Amount Payable: ₹ {{ result }}
+    {% if error %}
+    <div class="alert-error">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <span>{{ error }}</span>
     </div>
     {% endif %}
+
+    <div class="dashboard-grid">
+        <!-- Input Form Section -->
+        <div class="glass-card">
+            <form method="post">
+                <!-- Row 1: Amounts -->
+                <div class="form-section-title">
+                    <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                    Core Amount Parameters
+                </div>
+                <div class="form-group-grid">
+                    <div class="input-wrapper">
+                        <label for="suit_amount">Suit Amount (₹)</label>
+                        <input type="number" step="0.01" id="suit_amount" name="suit_amount" value="{{ form_data.suit_amount or '' }}" required placeholder="e.g. 500000">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="suit_contested">Suit Contested?</label>
+                        <select id="suit_contested" name="suit_contested">
+                            <option value="Yes" {% if form_data.suit_contested == 'Yes' or not form_data.suit_contested %}selected{% endif %}>Yes (Full Fee)</option>
+                            <option value="No" {% if form_data.suit_contested == 'No' %}selected{% endif %}>No (Half Fee)</option>
+                        </select>
+                    </div>
+                    <div class="input-wrapper full-width">
+                        <label for="principal_amount">Principal Amount (₹)</label>
+                        <input type="number" step="0.01" id="principal_amount" name="principal_amount" value="{{ form_data.principal_amount or '' }}" required placeholder="e.g. 350000">
+                    </div>
+                </div>
+
+                <!-- Decree Advocate Fee Reference Info Card -->
+                <div id="advocate_fee_info_card" style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 16px; padding: 18px 22px; margin: 25px 0; display: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px rgba(99, 102, 241, 0.04);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="#a5b4fc"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <strong style="color: #a5b4fc; font-family: 'Outfit', sans-serif; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">Decree Advocate Fee Reference</strong>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px;">
+                        Based on the Suit Amount, the calculated **Decree Advocate Fee** is: <strong id="ref_main_fee" style="color: var(--success-color); font-family: 'Outfit'; font-size: 1.15rem; font-weight: 700;">₹ 0.00</strong> (<span id="ref_contested_lbl" style="font-weight: 600; color: #fff;">Contested</span>).
+                    </p>
+                    <small style="color: var(--text-muted); font-size: 0.78rem; display: block; line-height: 1.4; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 6px; margin-top: 4px;">
+                        ℹ️ **Instruction:** Add this amount to other decree-awarded expenses (e.g. stamps, witnesses) and enter the summed total in **"Costs Awarded in Decree"** in Row 4 below.
+                    </small>
+                </div>
+
+                <!-- Row 2: Dates -->
+                <div class="form-section-title">
+                    <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                    Critical Litigation Dates
+                </div>
+                <div class="form-group-grid">
+                    <div class="input-wrapper">
+                        <label for="suit_date">Suit Filing Date</label>
+                        <input type="date" id="suit_date" name="suit_date" value="{{ form_data.suit_date or '' }}" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="decree_date">Decree Date</label>
+                        <input type="date" id="decree_date" name="decree_date" value="{{ form_data.decree_date or '' }}" required>
+                    </div>
+                    <div class="input-wrapper full-width">
+                        <label for="ep_date">EP Filing Date</label>
+                        <input type="date" id="ep_date" name="ep_date" value="{{ form_data.ep_date or '' }}" required>
+                    </div>
+                </div>
+
+                <!-- Row 3: Rates -->
+                <div class="form-section-title">
+                    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                    Phased Interest Rates (% per annum)
+                </div>
+                <div class="form-group-grid">
+                    <div class="input-wrapper">
+                        <label for="rate_suit_decree">Suit Filing to Decree</label>
+                        <input type="number" step="0.01" id="rate_suit_decree" name="rate_suit_decree" value="{{ form_data.rate_suit_decree or '' }}" required placeholder="e.g. 6.0">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="rate_decree_ep">Decree to EP Filing</label>
+                        <input type="number" step="0.01" id="rate_decree_ep" name="rate_decree_ep" value="{{ form_data.rate_decree_ep or '' }}" required placeholder="e.g. 9.0">
+                    </div>
+                </div>
+
+                <!-- Row 4: Costs -->
+                <div class="form-section-title">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    Awarded Court Costs & Fees (₹)
+                </div>
+                <div class="form-group-grid">
+                    <div class="input-wrapper">
+                        <label for="costs_awarded">Costs Awarded in Decree</label>
+                        <input type="number" step="0.01" id="costs_awarded" name="costs_awarded" value="{{ form_data.costs_awarded or '0' }}" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="cost_obtaining">Cost of Obtaining Decree</label>
+                        <input type="number" step="0.01" id="cost_obtaining" name="cost_obtaining" value="{{ form_data.cost_obtaining or '0' }}" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="court_fee_ep">Court Fee on EP</label>
+                        <input type="number" step="0.01" id="court_fee_ep" name="court_fee_ep" value="{{ form_data.court_fee_ep or '0' }}" required>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="court_fee_decree">Court Fee on Decree</label>
+                        <input type="number" step="0.01" id="court_fee_decree" name="court_fee_decree" value="{{ form_data.court_fee_decree or '0' }}" required>
+                    </div>
+                    <div class="input-wrapper full-width">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label for="advocate_fee_ep" style="margin-bottom: 0;">Advocate Fee in EP (₹)</label>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" id="auto_calc_fee" checked style="width: 16px; height: 16px; margin: 0; cursor: pointer; accent-color: var(--primary-accent);">
+                                <label for="auto_calc_fee" style="font-size: 0.75rem; text-transform: none; cursor: pointer; color: #a5b4fc; letter-spacing: 0;">Auto-Calculate</label>
+                            </div>
+                        </div>
+                        <input type="number" step="0.01" id="advocate_fee_ep" name="advocate_fee_ep" value="{{ form_data.advocate_fee_ep or '0' }}" required placeholder="Enter or auto-sync fee">
+                        <small id="fee_calc_info" style="color: var(--text-muted); font-size: 0.75rem; transition: color 0.3s; margin-top: 4px;">
+                            ⚡ Auto-syncing: 10% on first 10k, 7% on next 10k, 5% on next 30k, 3% on remainder (Half if non-contested).
+                        </small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    Calculate EP Amount
+                </button>
+            </form>
+        </div>
+
+        <!-- Output Visualization Section -->
+        <div class="glass-card">
+            {% if result and breakdown %}
+            <div class="results-panel">
+                <div class="result-header">
+                    <h3>Total EP Payable</h3>
+                    <div class="final-amount-badge">
+                        <div class="val">₹ {{ result }}</div>
+                    </div>
+                </div>
+
+                <div class="breakdown-list">
+                    <h4 style="font-family: 'Outfit'; margin-bottom: 10px; color: #a5b4fc; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Breakdown Details</h4>
+                    
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+                            Suit Principal
+                        </span>
+                        <span class="breakdown-val">₹ {{ breakdown.suit_amount }}</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 2 22 6.48 22 12s-4.48-10-10.01-10zm.01 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+                            Phase 1 Interest
+                        </span>
+                        <span class="breakdown-val">₹ {{ breakdown.interest_suit_decree }}</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 2 22 6.48 22 12s-4.48-10-10.01-10zm.01 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+                            Phase 2 Interest
+                        </span>
+                        <span class="breakdown-val">₹ {{ breakdown.interest_decree_ep }}</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            Advocate Fee (EP)
+                        </span>
+                        <div style="text-align: right;">
+                            <span class="breakdown-val">₹ {{ breakdown.advocate_fee_ep }}</span>
+                            {% if breakdown.advocate_fee_details %}
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">{{ breakdown.advocate_fee_details }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            Total Court Costs
+                        </span>
+                        <span class="breakdown-val">₹ {{ breakdown.total_costs }}</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.2); padding: 15px; border-radius: 12px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                    💡 <strong>Calculation Saved:</strong> This calculation case has been automatically securely cataloged in your SQLite database history shown below.
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-results-state">
+                <div class="showcase-carousel">
+                    <div class="carousel-slide active" style="background-image: linear-gradient(rgba(11, 15, 25, 0.1), rgba(11, 15, 25, 0.85)), url('/static/images/scales_of_justice.png');">
+                        <div class="carousel-caption">
+                            <h4>Equitable & Accurate Calculations</h4>
+                            <p>Computing pre-decree and post-decree interest variables according to standard legal procedures.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide" style="background-image: linear-gradient(rgba(11, 15, 25, 0.1), rgba(11, 15, 25, 0.85)), url('/static/images/courtroom_gavel.png');">
+                        <div class="carousel-caption">
+                            <h4>Aggregated Litigation Costs</h4>
+                            <p>Compile advocate fees, court fees, and decree procurement expenses in one secure location.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide" style="background-image: linear-gradient(rgba(11, 15, 25, 0.1), rgba(11, 15, 25, 0.85)), url('/static/images/advocate_consulting.png');">
+                        <div class="carousel-caption">
+                            <h4>Empowering Legal Advocates</h4>
+                            <p>Streamline case preparation and documentation with complete SQLite database auditing.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="carousel-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+
+                <div class="awaiting-badge">Awaiting Case Parameters</div>
+                <p class="desc">Fill in the litigation details on the left, then click <strong>Calculate EP Amount</strong> to run calculations and update your case history.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- History Section -->
+    <div class="glass-card history-section">
+        <div class="history-header">
+            <h2>Calculations History <span>{{ cases|length }} records</span></h2>
+            
+            {% if cases %}
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <a href="{{ url_for('export_cases') }}" class="btn-primary" style="padding: 10px 20px; font-size: 0.9rem; text-decoration: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); background: var(--success-gradient); width: auto; display: flex; align-items: center; gap: 6px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                    Export to Excel (CSV)
+                </a>
+                
+                <div class="search-bar">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="historySearch" placeholder="Filter calculations..." onkeyup="filterHistory()">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if cases %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Suit / Principal</th>
+                        <th>Key Milestone Dates</th>
+                        <th>Phased Rates</th>
+                        <th>Court Costs Breakdown</th>
+                        <th>EP Payable</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    {% for case in cases %}
+                    <tr class="history-row">
+                        <td><span style="color: var(--text-muted); font-weight: 600;">#{{ case.id }}</span></td>
+                        <td>
+                            <div class="td-amount">₹ {{ case.suit_amount }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Principal: ₹ {{ case.principal_amount }}</div>
+                        </td>
+                        <td>
+                            <div class="td-date-badge" style="margin-bottom: 4px; display: inline-block;">Filing: {{ case.suit_date }}</div><br>
+                            <div class="td-date-badge" style="margin-bottom: 4px; display: inline-block;">Decree: {{ case.decree_date }}</div><br>
+                            <div class="td-date-badge" style="display: inline-block;">EP: {{ case.ep_date }}</div>
+                        </td>
+                        <td class="td-rates">
+                            Suit → Decree: <strong>{{ case.rate_suit_decree }}%</strong><br>
+                            Decree → EP: <strong>{{ case.rate_decree_ep }}%</strong>
+                        </td>
+                        <td class="td-rates" style="font-size: 0.75rem;">
+                            Awarded: ₹ {{ case.costs_awarded }} | Obtaining: ₹ {{ case.cost_obtaining }}<br>
+                            EP Fee: ₹ {{ case.court_fee_ep }} | Decree Fee: ₹ {{ case.court_fee_decree }}<br>
+                            Advocate Fee: ₹ {{ case.advocate_fee_ep }} (Contested: {{ case.suit_contested or 'Yes' }})
+                        </td>
+                        <td>
+                            <div class="td-final">₹ {{ case.final_amount }}</div>
+                        </td>
+                        <td style="text-align: right;">
+                            <form action="{{ url_for('delete', case_id=case.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete calculation case #{{ case.id }}?');">
+                                <button type="submit" class="btn-delete-row">
+                                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-history-state">
+            <svg viewBox="0 0 24 24">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+            <p>No calculation history stored yet. Calculations will be cataloged here automatically.</p>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<script>
+    function filterHistory() {
+        let input = document.getElementById("historySearch").value.toLowerCase();
+        let rows = document.querySelectorAll(".history-row");
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+    // Dynamic slideshow/shuffling controller
+    let bgSlides = document.querySelectorAll(".bg-slide");
+    let carouselSlides = document.querySelectorAll(".carousel-slide");
+    let carouselDots = document.querySelectorAll(".carousel-dots .dot");
+    let currentIdx = 0;
+
+    function transitionSlides() {
+        if (bgSlides.length === 0) return;
+
+        // Background
+        bgSlides[currentIdx].classList.remove("active");
+        
+        // Carousel (if it exists on the page)
+        if (carouselSlides.length > 0) {
+            carouselSlides[currentIdx].classList.remove("active");
+            carouselDots[currentIdx].classList.remove("active");
+        }
+
+        // Increment index
+        currentIdx = (currentIdx + 1) % bgSlides.length;
+
+        // Background
+        bgSlides[currentIdx].classList.add("active");
+        
+        // Carousel
+        if (carouselSlides.length > 0) {
+            carouselSlides[currentIdx].classList.add("active");
+            carouselDots[currentIdx].classList.add("active");
+        }
+    }
+
+    // Sync transition every 8 seconds
+    setInterval(transitionSlides, 8000);
+
+    // Dynamic AP Advocate Fee Calculator (Money Suits) client-side logic
+    function calculateAdvocateFee(suitAmount, contested) {
+        if (!suitAmount || isNaN(suitAmount) || suitAmount <= 0) return 0;
+        
+        let fee = 0;
+        if (suitAmount <= 10000) {
+            fee = suitAmount * 0.10;
+        } else if (suitAmount <= 20000) {
+            fee = 1000 + (suitAmount - 10000) * 0.07;
+        } else if (suitAmount <= 50000) {
+            fee = 1000 + 700 + (suitAmount - 20000) * 0.05;
+        } else {
+            fee = 1000 + 700 + 1500 + (suitAmount - 50000) * 0.03;
+        }
+        
+        if (contested === "No") {
+            fee = fee * 0.5;
+        }
+        
+        return Math.round(fee * 100) / 100;
+    }
+
+    const suitAmountInput = document.getElementById("suit_amount");
+    const suitContestedSelect = document.getElementById("suit_contested");
+    const advocateFeeInput = document.getElementById("advocate_fee_ep");
+    const autoCalcCheckbox = document.getElementById("auto_calc_fee");
+    const feeCalcInfo = document.getElementById("fee_calc_info");
+    const mainFeeInfoCard = document.getElementById("advocate_fee_info_card");
+    const refMainFee = document.getElementById("ref_main_fee");
+    const refContestedLbl = document.getElementById("ref_contested_lbl");
+
+    function updateAdvocateFee() {
+        if (!suitAmountInput || !suitContestedSelect || !advocateFeeInput) return;
+
+        const amount = parseFloat(suitAmountInput.value);
+        const contested = suitContestedSelect.value;
+        const mainCalculatedFee = calculateAdvocateFee(amount, contested);
+        const epCalculatedFee = Math.round((mainCalculatedFee / 4.0) * 100) / 100;
+
+        // Display Decree Reference Card if amount is entered
+        if (mainFeeInfoCard && refMainFee && refContestedLbl) {
+            if (!isNaN(amount) && amount > 0) {
+                mainFeeInfoCard.style.display = "block";
+                refMainFee.innerHTML = `₹ ${mainCalculatedFee.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                refContestedLbl.innerHTML = contested === 'Yes' ? 'Contested: Full Fee' : 'Non-Contested: Half Fee';
+            } else {
+                mainFeeInfoCard.style.display = "none";
+            }
+        }
+
+        if (autoCalcCheckbox.checked) {
+            advocateFeeInput.value = isNaN(epCalculatedFee) ? "0.00" : epCalculatedFee.toFixed(2);
+            
+            if (!isNaN(amount) && amount > 0) {
+                feeCalcInfo.innerHTML = `⚡ EP Advocate Fee (1/4 of Decree Fee): ₹ ${epCalculatedFee.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (Auto-Synced).`;
+                feeCalcInfo.style.color = "var(--success-color)";
+            } else {
+                feeCalcInfo.innerHTML = "⚡ EP Fee auto-syncs to 1/4 of Decree Advocate Fee (Half if non-contested).";
+                feeCalcInfo.style.color = "var(--text-muted)";
+            }
+        } else {
+            feeCalcInfo.innerHTML = "✏️ Auto-sync disabled. Custom manual EP fee entered.";
+            feeCalcInfo.style.color = "var(--text-muted)";
+        }
+    }
+
+    if (suitAmountInput && suitContestedSelect && advocateFeeInput && autoCalcCheckbox) {
+        // Trigger update on suit amount or contested select change
+        suitAmountInput.addEventListener("input", updateAdvocateFee);
+        suitContestedSelect.addEventListener("change", updateAdvocateFee);
+
+        // If user changes advocate fee manually, disable auto-calculate
+        advocateFeeInput.addEventListener("input", function() {
+            autoCalcCheckbox.checked = false;
+            updateAdvocateFee();
+        });
+
+        // Toggle checkbox directly triggers update
+        autoCalcCheckbox.addEventListener("change", updateAdvocateFee);
+
+        // Initial check on load
+        const initAmount = parseFloat(suitAmountInput.value);
+        const initContested = suitContestedSelect.value;
+        const currentFee = parseFloat(advocateFeeInput.value);
+        const expectedMainFee = calculateAdvocateFee(initAmount, initContested);
+        const expectedEpFee = Math.round((expectedMainFee / 4.0) * 100) / 100;
+
+        if (isNaN(currentFee) || currentFee === 0 || Math.abs(currentFee - expectedEpFee) < 0.05) {
+            autoCalcCheckbox.checked = true;
+            updateAdvocateFee();
+        } else {
+            autoCalcCheckbox.checked = false;
+            updateAdvocateFee();
+        }
+    }
+</script>
 </body>
 </html>
